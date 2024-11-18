@@ -16,7 +16,9 @@ def calculate_halftime_metrics(ml_df):
     ml_df["Halftime Cumulative Goals - Home"] = ml_df.apply(
         lambda row: ml_df[
             (ml_df["Home Team ID"] == row["Home Team ID"]) & (ml_df["Round"] < row["Round"])
-        ]["Halftime Home Score"].sum(), axis=1
+        ]["Halftime Home Score"].sum() if not ml_df[
+            (ml_df["Home Team ID"] == row["Home Team ID"]) & (ml_df["Round"] < row["Round"])
+        ].empty else 0, axis=1
     )
 
     # Halftime Average Goals - Home
@@ -25,7 +27,7 @@ def calculate_halftime_metrics(ml_df):
             (ml_df["Home Team ID"] == row["Home Team ID"]) & (ml_df["Round"] < row["Round"])
         ]["Halftime Home Score"].mean() if not ml_df[
             (ml_df["Home Team ID"] == row["Home Team ID"]) & (ml_df["Round"] < row["Round"])
-        ]["Halftime Home Score"].empty else 0, axis=1
+        ].empty else 0, axis=1
     )
 
     # Halftime Scoring Rate - Home
@@ -34,14 +36,16 @@ def calculate_halftime_metrics(ml_df):
             (ml_df["Home Team ID"] == row["Home Team ID"]) & (ml_df["Round"] < row["Round"])
         ]["Halftime Home Score"].apply(lambda x: 1 if x > 0 else 0).mean() if not ml_df[
             (ml_df["Home Team ID"] == row["Home Team ID"]) & (ml_df["Round"] < row["Round"])
-        ]["Halftime Home Score"].empty else 0, axis=1
+        ].empty else 0, axis=1
     )
 
     # Halftime Cumulative Goals - Away
     ml_df["Halftime Cumulative Goals - Away"] = ml_df.apply(
         lambda row: ml_df[
             (ml_df["Away Team ID"] == row["Away Team ID"]) & (ml_df["Round"] < row["Round"])
-        ]["Halftime Away Score"].sum(), axis=1
+        ]["Halftime Away Score"].sum() if not ml_df[
+            (ml_df["Away Team ID"] == row["Away Team ID"]) & (ml_df["Round"] < row["Round"])
+        ].empty else 0, axis=1
     )
 
     # Halftime Average Goals - Away
@@ -50,7 +54,7 @@ def calculate_halftime_metrics(ml_df):
             (ml_df["Away Team ID"] == row["Away Team ID"]) & (ml_df["Round"] < row["Round"])
         ]["Halftime Away Score"].mean() if not ml_df[
             (ml_df["Away Team ID"] == row["Away Team ID"]) & (ml_df["Round"] < row["Round"])
-        ]["Halftime Away Score"].empty else 0, axis=1
+        ].empty else 0, axis=1
     )
 
     # Halftime Scoring Rate - Away
@@ -59,7 +63,7 @@ def calculate_halftime_metrics(ml_df):
             (ml_df["Away Team ID"] == row["Away Team ID"]) & (ml_df["Round"] < row["Round"])
         ]["Halftime Away Score"].apply(lambda x: 1 if x > 0 else 0).mean() if not ml_df[
             (ml_df["Away Team ID"] == row["Away Team ID"]) & (ml_df["Round"] < row["Round"])
-        ]["Halftime Away Score"].empty else 0, axis=1
+        ].empty else 0, axis=1
     )
 
     return ml_df

@@ -21,6 +21,22 @@ def process_all_data(fixtures, season_year):
     df_finished = df[df["Status Short"] == "FT"].copy()
     print(f"Toplam oynanmış maç sayısı: {len(df_finished)}")
 
+    # Eksik verileri kontrol et ve "0" ile doldur
+    columns_to_fill = [
+        "Halftime Home Score", "Halftime Away Score",
+        "Fulltime Home Score", "Fulltime Away Score"
+    ]
+    missing_counts = df_finished[columns_to_fill].isnull().sum()
+
+    for column, missing_count in missing_counts.items():
+        if missing_count > 0:
+            print(f"{column} sütununda {missing_count} eksik değer bulundu ve '0' ile dolduruldu.")
+        else:
+            print(f"{column} sütununda eksik değer bulunamadı.")
+
+    # Eksik değerleri "0" ile doldur
+    df_finished[columns_to_fill] = df_finished[columns_to_fill].fillna(0)
+
     # Ek hesaplamaları sırayla uygula
     df_finished = calculate_secondhalf_scores(df_finished)
     df_finished = calculate_match_result(df_finished)

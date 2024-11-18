@@ -40,4 +40,34 @@ def process_ml_data(df_finished):
     # 8. Result-based win rates hesaplama
     ml_df = calculate_result_win_rates(ml_df)
 
+    # 9. Sütunları sıralama
+    columns_order = [
+        # Features
+        "Round", "Home Team ID", "Away Team ID", 
+        "Halftime Cumulative Goals - Home", "Halftime Average Goals - Home", "Halftime Scoring Rate - Home",
+        "Halftime Cumulative Goals - Away", "Halftime Average Goals - Away", "Halftime Scoring Rate - Away",
+        "Second Half Cumulative Goals - Home", "Second Half Average Goals - Home", "Second Half Scoring Rate - Home",
+        "Second Half Cumulative Goals - Away", "Second Half Average Goals - Away", "Second Half Scoring Rate - Away",
+        "Fulltime Cumulative Goals - Home", "Fulltime Average Goals - Home", "Fulltime Scoring Rate - Home",
+        "Fulltime Cumulative Goals - Away", "Fulltime Average Goals - Away", "Fulltime Scoring Rate - Away",
+        "Home Fulltime Result Home Win", "Home Fulltime Result Away Win", "Home Fulltime Result Draw",
+        "Away Fulltime Result Home Win", "Away Fulltime Result Away Win", "Away Fulltime Result Draw",
+        "Home Halftime Result Home Win", "Home Halftime Result Away Win", "Home Halftime Result Draw",
+        "Away Halftime Result Home Win", "Away Halftime Result Away Win", "Away Halftime Result Draw",
+        "Home Secondhalf Result Home Win", "Home Secondhalf Result Away Win", "Home Secondhalf Result Draw",
+        "Away Secondhalf Result Home Win", "Away Secondhalf Result Away Win", "Away Secondhalf Result Draw",
+        # Labels
+        "Halftime Total Goals", "Secondhalf Total Goals", "Fulltime Total Goals", "Goal Range", "Both Team Score",
+        "Fulltime Home Over 0.5", "Fulltime Home Over 1.5", "Fulltime Home Over 2.5", "Fulltime Home Over 3.5",
+        "Fulltime Away Over 0.5", "Fulltime Away Over 1.5", "Fulltime Away Over 2.5", "Fulltime Away Over 3.5",
+        "Fulltime Over 0.5", "Fulltime Over 1.5", "Fulltime Over 2.5", "Fulltime Over 3.5",
+        "Halftime Home Clean Sheet", "Halftime Away Clean Sheet", "Secondhalf Home Clean Sheet", "Secondhalf Away Clean Sheet",
+        "Fulltime Home Clean Sheet", "Fulltime Away Clean Sheet", "Halftime Home Fail to Score", "Halftime Away Fail to Score",
+        "Secondhalf Home Fail to Score", "Secondhalf Away Fail to Score", "Fulltime Home Fail to Score", "Fulltime Away Fail to Score",
+        "Fulltime Result", "Halftime Result", "Secondhalf Result"
+    ]
+
+    # Sütun sırasını düzenle
+    ml_df = ml_df[columns_order]
+
     return ml_df

@@ -1,36 +1,56 @@
 from modules.api_manager import get_api_client
 from modules.country_league_selector import select_country_and_league
 from modules.fixture_fetcher import fetch_fixtures
+from modules.fixture_processor import process_fixture_data
 from modules.data_processor import process_all_data
 from modules.save_helpers import save_to_excel, generate_file_name
 from modules.ml_processor import process_ml_data
+from modules.folder_manager import initialize_data_folder
+from modules.run_analysis import run_all_analyses
+from modules.run_ml_training import run_ml_training
 
 def main():
     """
     Programın ana fonksiyonu.
     """
-    # 1. API Bağlantısını Test Et ve Al
+    # 1. 'data' klasörünü temizle ve yeniden oluştur
+    initialize_data_folder()
+
+    # 2. API Bağlantısını Test Et ve Al
     api_client = get_api_client()
 
-    # 2. Kullanıcıdan ülke ve lig seçimini al
+    # 3. Kullanıcıdan ülke ve lig seçimini al
     league_id, season_year = select_country_and_league(api_client)
 
-    # 3. Seçilen lig ve sezonun maçlarını indir
+    # 4. Seçilen lig ve sezonun maçlarını indir
     fixtures = fetch_fixtures(api_client, league_id, season_year)
 
-    # 4. Tüm veriyi işleyerek genişletilmiş DataFrame oluştur
+    # Tüm maç verilerini işleyerek DataFrame oluştur
+    fixtures_df = process_fixture_data(fixtures, season_year)
+    
+    # Tüm maçları içeren DataFrame'i kaydet
+    fixtures_file_name = generate_file_name(fixtures, season_year, "all_fixtures")
+    save_to_excel(fixtures_df, fixtures_file_name)
+
+    # 5. Tüm veriyi işleyerek genişletilmiş DataFrame oluştur
     df_finished = process_all_data(fixtures, season_year)
 
-    # 5. DataFrame'i Excel'e kaydet
+    # 6. DataFrame'i Excel'e kaydet
     processed_file_name = generate_file_name(fixtures, season_year, "finished_fixtures")
     save_to_excel(df_finished, processed_file_name)
 
-    # 6. ML için gerekli DataFrame'i hazırla
+    # 7. ML için gerekli DataFrame'i hazırla
     ml_df = process_ml_data(df_finished)
 
-    # 7. ML için hazırlanmış veriyi kaydet
+    # 8. ML için hazırlanmış veriyi kaydet
     ml_file_name = generate_file_name(fixtures, season_year, "ml_ready")
     save_to_excel(ml_df, ml_file_name)
+
+    # 9. ML verisi üzerinde analizleri çalıştır
+    run_all_analyses(ml_df)
+
+    # 10. ML modellerini eğit ve değerlendir
+    run_ml_training(ml_df)
 
 if __name__ == "__main__":
     main()

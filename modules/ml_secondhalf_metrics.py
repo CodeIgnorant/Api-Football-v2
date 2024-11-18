@@ -23,19 +23,15 @@ def calculate_secondhalf_metrics(ml_df):
     ml_df["Second Half Average Goals - Home"] = ml_df.apply(
         lambda row: ml_df[
             (ml_df["Home Team ID"] == row["Home Team ID"]) & (ml_df["Round"] < row["Round"])
-        ]["Secondhalf Home Score"].mean() if not ml_df[
-            (ml_df["Home Team ID"] == row["Home Team ID"]) & (ml_df["Round"] < row["Round"])
-        ]["Secondhalf Home Score"].empty else 0, axis=1
-    )
+        ]["Secondhalf Home Score"].mean(), axis=1
+    ).fillna(0)  # NaN değerlerini 0 ile doldur
 
     # Second Half Scoring Rate - Home
     ml_df["Second Half Scoring Rate - Home"] = ml_df.apply(
         lambda row: ml_df[
             (ml_df["Home Team ID"] == row["Home Team ID"]) & (ml_df["Round"] < row["Round"])
-        ]["Secondhalf Home Score"].apply(lambda x: 1 if x > 0 else 0).mean() if not ml_df[
-            (ml_df["Home Team ID"] == row["Home Team ID"]) & (ml_df["Round"] < row["Round"])
-        ]["Secondhalf Home Score"].empty else 0, axis=1
-    )
+        ]["Secondhalf Home Score"].apply(lambda x: 1 if x > 0 else 0).mean(), axis=1
+    ).fillna(0)  # NaN değerlerini 0 ile doldur
 
     # Second Half Cumulative Goals - Away
     ml_df["Second Half Cumulative Goals - Away"] = ml_df.apply(
@@ -48,18 +44,14 @@ def calculate_secondhalf_metrics(ml_df):
     ml_df["Second Half Average Goals - Away"] = ml_df.apply(
         lambda row: ml_df[
             (ml_df["Away Team ID"] == row["Away Team ID"]) & (ml_df["Round"] < row["Round"])
-        ]["Secondhalf Away Score"].mean() if not ml_df[
-            (ml_df["Away Team ID"] == row["Away Team ID"]) & (ml_df["Round"] < row["Round"])
-        ]["Secondhalf Away Score"].empty else 0, axis=1
-    )
+        ]["Secondhalf Away Score"].mean(), axis=1
+    ).fillna(0)  # NaN değerlerini 0 ile doldur
 
     # Second Half Scoring Rate - Away
     ml_df["Second Half Scoring Rate - Away"] = ml_df.apply(
         lambda row: ml_df[
             (ml_df["Away Team ID"] == row["Away Team ID"]) & (ml_df["Round"] < row["Round"])
-        ]["Secondhalf Away Score"].apply(lambda x: 1 if x > 0 else 0).mean() if not ml_df[
-            (ml_df["Away Team ID"] == row["Away Team ID"]) & (ml_df["Round"] < row["Round"])
-        ]["Secondhalf Away Score"].empty else 0, axis=1
-    )
+        ]["Secondhalf Away Score"].apply(lambda x: 1 if x > 0 else 0).mean(), axis=1
+    ).fillna(0)  # NaN değerlerini 0 ile doldur
 
     return ml_df

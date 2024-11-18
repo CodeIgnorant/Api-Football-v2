@@ -16,7 +16,7 @@ def process_fixture_data(fixtures, season_year):
             "League Name": fixture.get("league", {}).get("name"),
             "League Country": fixture.get("league", {}).get("country"),
             "League Season": fixture.get("league", {}).get("season"),
-            "Round": fixture.get("league", {}).get("round"),  # Round ham haliyle alınıyor
+            "Round": fixture.get("league", {}).get("round"),
             "Home Team ID": fixture.get("teams", {}).get("home", {}).get("id"),
             "Home Team Name": fixture.get("teams", {}).get("home", {}).get("name"),
             "Away Team ID": fixture.get("teams", {}).get("away", {}).get("id"),
