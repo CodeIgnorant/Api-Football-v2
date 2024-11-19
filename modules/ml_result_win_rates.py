@@ -1,6 +1,6 @@
 import logging
 
-def calculate_result_win_rates(ml_df):
+def calculate_result_win_rates(df):
     """
     Her bir takım için Fulltime, Halftime ve Secondhalf sonuçlarına dayalı kazanma, kaybetme ve beraberlik oranlarını hesaplar.
     Aşağıdaki sütunlar oluşturulur:
@@ -12,8 +12,8 @@ def calculate_result_win_rates(ml_df):
     - Away Fulltime Result Draw
     - (Halftime ve Secondhalf sonuçları için de benzer sütunlar)
 
-    :param ml_df: ML için hazırlanmakta olan DataFrame.
-    :return: Güncellenmiş ml_df.
+    :param df: ML için hazırlanmakta olan DataFrame.
+    :return: Güncellenmiş df.
     """
     logging.info("Sonuç oranları hesaplanmaya başlıyor...")
 
@@ -27,8 +27,8 @@ def calculate_result_win_rates(ml_df):
         :return: Belirtilen sonucun oranı.
         """
         team_id = row[team_id_column]
-        past_matches = ml_df[
-            (ml_df[team_id_column] == team_id) & (ml_df["Round"] < row["Round"])
+        past_matches = df[
+            (df[team_id_column] == team_id) & (df["Round"] < row["Round"])
         ]
         total_matches = past_matches.shape[0]
         if total_matches == 0:
@@ -37,69 +37,69 @@ def calculate_result_win_rates(ml_df):
 
     # Fulltime Result oranları
     logging.info("Fulltime sonuç oranları hesaplanıyor...")
-    ml_df["Home Fulltime Result Home Win"] = ml_df.apply(
+    df["Home Fulltime Result Home Win"] = df.apply(
         lambda row: calculate_rate(row, "Home Team ID", 1, "Fulltime Result"), axis=1
     )
-    ml_df["Home Fulltime Result Away Win"] = ml_df.apply(
+    df["Home Fulltime Result Away Win"] = df.apply(
         lambda row: calculate_rate(row, "Home Team ID", 2, "Fulltime Result"), axis=1
     )
-    ml_df["Home Fulltime Result Draw"] = ml_df.apply(
+    df["Home Fulltime Result Draw"] = df.apply(
         lambda row: calculate_rate(row, "Home Team ID", 0, "Fulltime Result"), axis=1
     )
-    ml_df["Away Fulltime Result Home Win"] = ml_df.apply(
+    df["Away Fulltime Result Home Win"] = df.apply(
         lambda row: calculate_rate(row, "Away Team ID", 1, "Fulltime Result"), axis=1
     )
-    ml_df["Away Fulltime Result Away Win"] = ml_df.apply(
+    df["Away Fulltime Result Away Win"] = df.apply(
         lambda row: calculate_rate(row, "Away Team ID", 2, "Fulltime Result"), axis=1
     )
-    ml_df["Away Fulltime Result Draw"] = ml_df.apply(
+    df["Away Fulltime Result Draw"] = df.apply(
         lambda row: calculate_rate(row, "Away Team ID", 0, "Fulltime Result"), axis=1
     )
     logging.info("Fulltime sonuç oranları başarıyla hesaplandı.")
 
     # Halftime Result oranları
     logging.info("Halftime sonuç oranları hesaplanıyor...")
-    ml_df["Home Halftime Result Home Win"] = ml_df.apply(
+    df["Home Halftime Result Home Win"] = df.apply(
         lambda row: calculate_rate(row, "Home Team ID", 1, "Halftime Result"), axis=1
     )
-    ml_df["Home Halftime Result Away Win"] = ml_df.apply(
+    df["Home Halftime Result Away Win"] = df.apply(
         lambda row: calculate_rate(row, "Home Team ID", 2, "Halftime Result"), axis=1
     )
-    ml_df["Home Halftime Result Draw"] = ml_df.apply(
+    df["Home Halftime Result Draw"] = df.apply(
         lambda row: calculate_rate(row, "Home Team ID", 0, "Halftime Result"), axis=1
     )
-    ml_df["Away Halftime Result Home Win"] = ml_df.apply(
+    df["Away Halftime Result Home Win"] = df.apply(
         lambda row: calculate_rate(row, "Away Team ID", 1, "Halftime Result"), axis=1
     )
-    ml_df["Away Halftime Result Away Win"] = ml_df.apply(
+    df["Away Halftime Result Away Win"] = df.apply(
         lambda row: calculate_rate(row, "Away Team ID", 2, "Halftime Result"), axis=1
     )
-    ml_df["Away Halftime Result Draw"] = ml_df.apply(
+    df["Away Halftime Result Draw"] = df.apply(
         lambda row: calculate_rate(row, "Away Team ID", 0, "Halftime Result"), axis=1
     )
     logging.info("Halftime sonuç oranları başarıyla hesaplandı.")
 
     # Secondhalf Result oranları
     logging.info("Secondhalf sonuç oranları hesaplanıyor...")
-    ml_df["Home Secondhalf Result Home Win"] = ml_df.apply(
+    df["Home Secondhalf Result Home Win"] = df.apply(
         lambda row: calculate_rate(row, "Home Team ID", 1, "Secondhalf Result"), axis=1
     )
-    ml_df["Home Secondhalf Result Away Win"] = ml_df.apply(
+    df["Home Secondhalf Result Away Win"] = df.apply(
         lambda row: calculate_rate(row, "Home Team ID", 2, "Secondhalf Result"), axis=1
     )
-    ml_df["Home Secondhalf Result Draw"] = ml_df.apply(
+    df["Home Secondhalf Result Draw"] = df.apply(
         lambda row: calculate_rate(row, "Home Team ID", 0, "Secondhalf Result"), axis=1
     )
-    ml_df["Away Secondhalf Result Home Win"] = ml_df.apply(
+    df["Away Secondhalf Result Home Win"] = df.apply(
         lambda row: calculate_rate(row, "Away Team ID", 1, "Secondhalf Result"), axis=1
     )
-    ml_df["Away Secondhalf Result Away Win"] = ml_df.apply(
+    df["Away Secondhalf Result Away Win"] = df.apply(
         lambda row: calculate_rate(row, "Away Team ID", 2, "Secondhalf Result"), axis=1
     )
-    ml_df["Away Secondhalf Result Draw"] = ml_df.apply(
+    df["Away Secondhalf Result Draw"] = df.apply(
         lambda row: calculate_rate(row, "Away Team ID", 0, "Secondhalf Result"), axis=1
     )
     logging.info("Secondhalf sonuç oranları başarıyla hesaplandı.")
 
     logging.info("Sonuç oranları hesaplama işlemi tamamlandı.")
-    return ml_df
+    return df

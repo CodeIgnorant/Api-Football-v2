@@ -64,7 +64,6 @@ def process_all_data(df, season_year):
         "Halftime Home Score", "Halftime Away Score",
         "Fulltime Home Score", "Fulltime Away Score"
     ]
-
     completed_matches = df[df["Status Short"] == "FT"].copy()
     missing_counts = completed_matches[columns_to_fill].isnull().sum()
 
@@ -73,19 +72,18 @@ def process_all_data(df, season_year):
             print(f"{column} sütununda {missing_count} eksik değer bulundu ve '0' ile dolduruldu.")
         else:
             print(f"{column} sütununda eksik değer bulunamadı.")
-
-    # Sadece tamamlanmış maçlar için eksik değerleri doldur
+    # Eksik değerleri doldur
     df.loc[df["Status Short"] == "FT", columns_to_fill] = completed_matches[columns_to_fill].fillna(0)
 
     # 6. Tamamlanmış maçlar için hesaplamalar
     print("Tamamlanmış maçlar için hesaplamalar başlatılıyor...")
-    df.loc[df["Status Short"] == "FT"] = calculate_secondhalf_scores(df[df["Status Short"] == "FT"])
-    df.loc[df["Status Short"] == "FT"] = calculate_match_result(df[df["Status Short"] == "FT"])
-    df.loc[df["Status Short"] == "FT"] = calculate_total_goals(df[df["Status Short"] == "FT"])
-    df.loc[df["Status Short"] == "FT"] = calculate_over_under(df[df["Status Short"] == "FT"])
-    df.loc[df["Status Short"] == "FT"] = calculate_goal_range(df[df["Status Short"] == "FT"])
-    df.loc[df["Status Short"] == "FT"] = calculate_both_team_score(df[df["Status Short"] == "FT"])
-    df.loc[df["Status Short"] == "FT"] = calculate_clean_sheets_and_fail_to_score(df[df["Status Short"] == "FT"])
+    df = calculate_secondhalf_scores(df)
+    df = calculate_match_result(df)
+    df = calculate_total_goals(df)
+    df = calculate_over_under(df)
+    df = calculate_goal_range(df)
+    df = calculate_both_team_score(df)
+    df = calculate_clean_sheets_and_fail_to_score(df)
     print("Tamamlanmış maçlar için hesaplamalar tamamlandı.")
 
     # 7. Tüm maçlar için ML metriklerini hesaplama
