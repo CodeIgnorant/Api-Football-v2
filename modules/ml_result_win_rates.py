@@ -1,3 +1,5 @@
+import logging
+
 def calculate_result_win_rates(ml_df):
     """
     Her bir takım için Fulltime, Halftime ve Secondhalf sonuçlarına dayalı kazanma, kaybetme ve beraberlik oranlarını hesaplar.
@@ -13,6 +15,8 @@ def calculate_result_win_rates(ml_df):
     :param ml_df: ML için hazırlanmakta olan DataFrame.
     :return: Güncellenmiş ml_df.
     """
+    logging.info("Sonuç oranları hesaplanmaya başlıyor...")
+
     def calculate_rate(row, team_id_column, result_value, result_column):
         """
         Belirli bir takımın belirli bir sonuç oranını hesaplar.
@@ -32,6 +36,7 @@ def calculate_result_win_rates(ml_df):
         return past_matches[past_matches[result_column] == result_value].shape[0] / total_matches
 
     # Fulltime Result oranları
+    logging.info("Fulltime sonuç oranları hesaplanıyor...")
     ml_df["Home Fulltime Result Home Win"] = ml_df.apply(
         lambda row: calculate_rate(row, "Home Team ID", 1, "Fulltime Result"), axis=1
     )
@@ -50,8 +55,10 @@ def calculate_result_win_rates(ml_df):
     ml_df["Away Fulltime Result Draw"] = ml_df.apply(
         lambda row: calculate_rate(row, "Away Team ID", 0, "Fulltime Result"), axis=1
     )
+    logging.info("Fulltime sonuç oranları başarıyla hesaplandı.")
 
     # Halftime Result oranları
+    logging.info("Halftime sonuç oranları hesaplanıyor...")
     ml_df["Home Halftime Result Home Win"] = ml_df.apply(
         lambda row: calculate_rate(row, "Home Team ID", 1, "Halftime Result"), axis=1
     )
@@ -70,8 +77,10 @@ def calculate_result_win_rates(ml_df):
     ml_df["Away Halftime Result Draw"] = ml_df.apply(
         lambda row: calculate_rate(row, "Away Team ID", 0, "Halftime Result"), axis=1
     )
+    logging.info("Halftime sonuç oranları başarıyla hesaplandı.")
 
     # Secondhalf Result oranları
+    logging.info("Secondhalf sonuç oranları hesaplanıyor...")
     ml_df["Home Secondhalf Result Home Win"] = ml_df.apply(
         lambda row: calculate_rate(row, "Home Team ID", 1, "Secondhalf Result"), axis=1
     )
@@ -90,5 +99,7 @@ def calculate_result_win_rates(ml_df):
     ml_df["Away Secondhalf Result Draw"] = ml_df.apply(
         lambda row: calculate_rate(row, "Away Team ID", 0, "Secondhalf Result"), axis=1
     )
+    logging.info("Secondhalf sonuç oranları başarıyla hesaplandı.")
 
+    logging.info("Sonuç oranları hesaplama işlemi tamamlandı.")
     return ml_df

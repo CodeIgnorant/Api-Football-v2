@@ -1,21 +1,27 @@
+import logging
+
 def fetch_fixtures(api_client, league_id, season_year, timezone="Europe/Istanbul"):
     """
     Seçilen ligin ve sezonun tüm maçlarını API'den indirir.
+    :param api_client: API bağlantısı için kullanılan istemci.
+    :param league_id: Lig ID'si.
+    :param season_year: Sezon yılı.
     :param timezone: Zaman dilimi parametresi (varsayılan: "Europe/Istanbul").
+    :return: Maç verilerinin listesi veya None.
     """
-    print(f"{season_year} sezonu için maçlar indiriliyor...")
+    logging.info(f"{season_year} sezonu için maçlar indiriliyor...")
 
     # 'fixtures' endpoint'ine istek gönder
     response = api_client.send_request("fixtures", league=league_id, season=season_year, timezone=timezone)
     
     if "error" in response:
-        print("Maç verileri alınamadı. Lütfen tekrar deneyin.")
+        logging.error("Maç verileri alınamadı. Lütfen tekrar deneyin.")
         return None
 
     fixtures = response.get("response", [])
     if not fixtures:
-        print("Seçilen lig ve sezon için tamamlanmış maç bulunamadı.")
+        logging.warning("Seçilen lig ve sezon için tamamlanmış maç bulunamadı.")
         return None
 
-    print(f"{len(fixtures)} maç başarıyla indirildi.")
+    logging.info(f"{len(fixtures)} maç başarıyla indirildi.")
     return fixtures

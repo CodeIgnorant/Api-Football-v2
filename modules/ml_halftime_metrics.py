@@ -1,3 +1,5 @@
+import logging
+
 def calculate_halftime_metrics(ml_df):
     """
     Halftime metriklerini hesaplar:
@@ -11,6 +13,7 @@ def calculate_halftime_metrics(ml_df):
     :param ml_df: ML için hazırlanmakta olan DataFrame.
     :return: Güncellenmiş ml_df.
     """
+    logging.info("Halftime metrikleri hesaplanmaya başlıyor...")
 
     # Halftime Cumulative Goals - Home
     ml_df["Halftime Cumulative Goals - Home"] = ml_df.apply(
@@ -20,6 +23,7 @@ def calculate_halftime_metrics(ml_df):
             (ml_df["Home Team ID"] == row["Home Team ID"]) & (ml_df["Round"] < row["Round"])
         ].empty else 0, axis=1
     )
+    logging.info("Halftime Cumulative Goals - Home sütunu hesaplandı.")
 
     # Halftime Average Goals - Home
     ml_df["Halftime Average Goals - Home"] = ml_df.apply(
@@ -29,6 +33,7 @@ def calculate_halftime_metrics(ml_df):
             (ml_df["Home Team ID"] == row["Home Team ID"]) & (ml_df["Round"] < row["Round"])
         ].empty else 0, axis=1
     )
+    logging.info("Halftime Average Goals - Home sütunu hesaplandı.")
 
     # Halftime Scoring Rate - Home
     ml_df["Halftime Scoring Rate - Home"] = ml_df.apply(
@@ -38,6 +43,7 @@ def calculate_halftime_metrics(ml_df):
             (ml_df["Home Team ID"] == row["Home Team ID"]) & (ml_df["Round"] < row["Round"])
         ].empty else 0, axis=1
     )
+    logging.info("Halftime Scoring Rate - Home sütunu hesaplandı.")
 
     # Halftime Cumulative Goals - Away
     ml_df["Halftime Cumulative Goals - Away"] = ml_df.apply(
@@ -47,6 +53,7 @@ def calculate_halftime_metrics(ml_df):
             (ml_df["Away Team ID"] == row["Away Team ID"]) & (ml_df["Round"] < row["Round"])
         ].empty else 0, axis=1
     )
+    logging.info("Halftime Cumulative Goals - Away sütunu hesaplandı.")
 
     # Halftime Average Goals - Away
     ml_df["Halftime Average Goals - Away"] = ml_df.apply(
@@ -56,6 +63,7 @@ def calculate_halftime_metrics(ml_df):
             (ml_df["Away Team ID"] == row["Away Team ID"]) & (ml_df["Round"] < row["Round"])
         ].empty else 0, axis=1
     )
+    logging.info("Halftime Average Goals - Away sütunu hesaplandı.")
 
     # Halftime Scoring Rate - Away
     ml_df["Halftime Scoring Rate - Away"] = ml_df.apply(
@@ -65,5 +73,7 @@ def calculate_halftime_metrics(ml_df):
             (ml_df["Away Team ID"] == row["Away Team ID"]) & (ml_df["Round"] < row["Round"])
         ].empty else 0, axis=1
     )
+    logging.info("Halftime Scoring Rate - Away sütunu hesaplandı.")
 
+    logging.info("Halftime metrikleri başarıyla hesaplandı.")
     return ml_df

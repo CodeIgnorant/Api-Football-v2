@@ -2,70 +2,72 @@ import requests
 import logging
 import os
 
+# Loglama yapılandırması
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 class Config:
-    # Load the API URL from environment variables or use a default value
+    # Çevre değişkenlerinden API URL'sini yükler veya varsayılan değeri kullanır
     api_url = os.getenv('API_URL', "https://v3.football.api-sports.io")
     
-    # Load the API key from environment variables; provide a default key for development
+    # Çevre değişkenlerinden API anahtarını yükler; geliştirme için varsayılan bir anahtar sağlar
     api_key = os.getenv('API_KEY', 'your_test_api_key')
 
 class APIClient:
     def __init__(self):
         """
-        Initializes the APIClient with API details from Config.
+        Config sınıfından alınan API detayları ile APIClient'ı başlatır.
         """
-        # Get API URL and key from config
+        # API URL ve anahtarını al
         self.base_url = Config.api_url
         self.api_key = Config.api_key
-        self.timezone = "Europe/Istanbul"  # Set timezone as a constant
+        self.timezone = "Europe/Istanbul"  # Sabit zaman dilimi ayarı
 
-        # Validate API Key
+        # API Anahtarını doğrula
         if not self.api_key:
-            logging.error("API Key not found. Please provide a valid API key.")
-            raise ValueError("API Key not found.")
+            logging.critical("API Anahtarı bulunamadı. Lütfen geçerli bir anahtar sağlayın.")
+            raise ValueError("API Anahtarı bulunamadı.")
         else:
-            logging.info(f"API Key successfully retrieved: {self.api_key[:4]}****")
+            logging.info(f"API Anahtarı başarıyla alındı: {self.api_key[:4]}****")
 
-        # Set headers
+        # Header bilgilerini ayarla
         self.headers = {
             "x-apisports-key": self.api_key
         }
 
     def test_connection(self):
         """
-        Tests the API connection.
+        API bağlantısını test eder.
         """
         try:
             response = requests.get(self.base_url, headers=self.headers, timeout=10)
-            response.raise_for_status()  # Raises exception on error
-            logging.info("API connection successful!")  # Log success
+            response.raise_for_status()  # Hata durumunda istisna fırlatır
+            logging.info("API bağlantısı testi tamamlandı ve başarılı.")
             return True
         except requests.exceptions.RequestException as req_err:
-            logging.error(f"API connection failed! Error: {req_err}")
+            logging.error(f"API bağlantısı başarısız! Hata: {req_err}")
             return False
 
     def send_request(self, endpoint, **kwargs):
         """
-        Makes a general API request.
-        :param endpoint: API endpoint to hit.
-        :param kwargs: Optional parameters to send in the request.
+        Genel bir API isteği yapar.
+        :param endpoint: Erişim sağlanacak API uç noktası.
+        :param kwargs: İsteğe gönderilecek isteğe bağlı parametreler.
         """
-        # Construct full URL for the endpoint
+        # Uç nokta için tam URL'yi oluştur
         url = f"{self.base_url}/{endpoint}"
 
         try:
-            # Send GET request with query parameters
+            # Parametrelerle birlikte GET isteği gönder
             response = requests.get(url, headers=self.headers, params=kwargs, timeout=10)
-            response.raise_for_status()  # Check for HTTP errors
+            response.raise_for_status()  # HTTP hatalarını kontrol et
 
-            # Log the full URL with query parameters
-            logging.info(f"Full URL with params: {response.url}")
-            logging.info("API request successful!")
+            # Tüm URL'yi ve parametreleri logla
+            logging.info(f"Tam URL ve parametreler: {response.url}")
+            logging.info("API isteği başarılı!")
 
-            return response.json()  # Return the response in JSON format
+            return response.json()  # Yanıtı JSON formatında döndür
         except requests.exceptions.HTTPError as http_err:
-            logging.error(f"HTTP error occurred: {http_err}")
+            logging.error(f"HTTP hatası oluştu: {http_err}")
         except requests.exceptions.RequestException as req_err:
-            logging.error(f"An error occurred during the API request: {req_err}")
-
-        return {"error": "API request failed."}
+            logging.error(f"API isteği sırasında bir hata oluştu: {req_err}")
+            return {"error": f"API isteği başarısız oldu. Detay: {req_err}"}

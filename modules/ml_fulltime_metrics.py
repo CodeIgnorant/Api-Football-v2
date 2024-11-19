@@ -1,3 +1,5 @@
+import logging
+
 def calculate_fulltime_metrics(ml_df):
     """
     Fulltime metriklerini hesaplar:
@@ -12,6 +14,8 @@ def calculate_fulltime_metrics(ml_df):
     :return: Güncellenmiş ml_df.
     """
 
+    logging.info("Fulltime metrikleri hesaplanmaya başlıyor...")
+
     # Fulltime Cumulative Goals - Home
     ml_df["Fulltime Cumulative Goals - Home"] = ml_df.apply(
         lambda row: ml_df[
@@ -21,6 +25,7 @@ def calculate_fulltime_metrics(ml_df):
         ]["Fulltime Home Score"].empty else 0,
         axis=1
     )
+    logging.info("Fulltime Cumulative Goals - Home sütunu hesaplandı.")
 
     # Fulltime Average Goals - Home
     ml_df["Fulltime Average Goals - Home"] = ml_df.apply(
@@ -31,6 +36,7 @@ def calculate_fulltime_metrics(ml_df):
         ]["Fulltime Home Score"].empty else 0,
         axis=1
     )
+    logging.info("Fulltime Average Goals - Home sütunu hesaplandı.")
 
     # Fulltime Scoring Rate - Home
     ml_df["Fulltime Scoring Rate - Home"] = ml_df.apply(
@@ -41,6 +47,7 @@ def calculate_fulltime_metrics(ml_df):
         ]["Fulltime Home Score"].empty else 0,
         axis=1
     )
+    logging.info("Fulltime Scoring Rate - Home sütunu hesaplandı.")
 
     # Fulltime Cumulative Goals - Away
     ml_df["Fulltime Cumulative Goals - Away"] = ml_df.apply(
@@ -51,6 +58,7 @@ def calculate_fulltime_metrics(ml_df):
         ]["Fulltime Away Score"].empty else 0,
         axis=1
     )
+    logging.info("Fulltime Cumulative Goals - Away sütunu hesaplandı.")
 
     # Fulltime Average Goals - Away
     ml_df["Fulltime Average Goals - Away"] = ml_df.apply(
@@ -61,6 +69,7 @@ def calculate_fulltime_metrics(ml_df):
         ]["Fulltime Away Score"].empty else 0,
         axis=1
     )
+    logging.info("Fulltime Average Goals - Away sütunu hesaplandı.")
 
     # Fulltime Scoring Rate - Away
     ml_df["Fulltime Scoring Rate - Away"] = ml_df.apply(
@@ -71,5 +80,7 @@ def calculate_fulltime_metrics(ml_df):
         ]["Fulltime Away Score"].empty else 0,
         axis=1
     )
+    logging.info("Fulltime Scoring Rate - Away sütunu hesaplandı.")
 
+    logging.info("Fulltime metrikleri başarıyla hesaplandı.")
     return ml_df

@@ -1,4 +1,4 @@
-# goal_range.py
+import logging
 
 def calculate_goal_range(df):
     """
@@ -22,6 +22,11 @@ def calculate_goal_range(df):
         else:
             return 6.5
     
+    logging.info("Goal Range hesaplamaları başlatılıyor...")
+    
+    # Goal Range sütununu hesapla ve ekle
     df['Goal Range'] = df['Fulltime Total Goals'].apply(goal_range_value)
+    
+    logging.info("Goal Range sütunu başarıyla eklendi.")
     
     return df

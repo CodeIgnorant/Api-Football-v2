@@ -1,4 +1,5 @@
 import os
+import logging
 from modules.ml_trainer import run_ml_for_label
 
 def run_all_ml(ml_df, labels_features_mapping, output_folder="ml_results"):
@@ -12,10 +13,10 @@ def run_all_ml(ml_df, labels_features_mapping, output_folder="ml_results"):
     """
     os.makedirs(output_folder, exist_ok=True)
 
-    print("=== ML Süreci Başlıyor ===")
+    logging.info("=== ML Süreci Başlıyor ===")
     
     for label, features in labels_features_mapping.items():
-        print(f"\n--- '{label}' için ML eğitimi başlıyor ---")
+        logging.info(f"'{label}' için ML eğitimi başlıyor...")
         
         # Hedef klasörü oluştur
         label_folder = os.path.join(output_folder, label.replace(" ", "_").lower())
@@ -28,6 +29,6 @@ def run_all_ml(ml_df, labels_features_mapping, output_folder="ml_results"):
         for algo_name, metrics in results.items():
             file_path = os.path.join(label_folder, f"{algo_name}_results.xlsx")
             metrics.to_excel(file_path, index=False)
-            print(f"{algo_name} sonuçları kaydedildi: {file_path}")
+            logging.info(f"{algo_name} sonuçları kaydedildi: {file_path}")
     
-    print("\n=== Tüm ML Süreci Tamamlandı ===")
+    logging.info("=== Tüm ML Süreci Tamamlandı ===")

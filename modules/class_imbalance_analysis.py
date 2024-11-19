@@ -21,7 +21,12 @@ def run_class_imbalance_analysis(df, labels, output_folder="data"):
 
     for label in labels:
         if label not in df.columns:
-            print(f"{label} sütunu DataFrame'de bulunamadı. Atlınıyor.")
+            print(f"{label} sütunu DataFrame'de bulunamadı. Atlanıyor.")
+            continue
+
+        # Eksik değer kontrolü
+        if df[label].isnull().any():
+            print(f"{label} sütununda eksik değerler var. Atlınıyor.")
             continue
         
         # Sınıf dağılımı

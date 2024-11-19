@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import logging
 
 def run_correlation_analysis(df, output_folder="data"):
     """
@@ -14,12 +15,15 @@ def run_correlation_analysis(df, output_folder="data"):
     # Analiz için alt klasörü oluştur
     analysis_folder = os.path.join(output_folder, "correlation_analysis")
     os.makedirs(analysis_folder, exist_ok=True)
+    logging.info(f"Korelasyon analizi için klasör oluşturuldu: {analysis_folder}")
 
     # 1. Sayısal sütunları seç
     numeric_df = df.select_dtypes(include=['float64', 'int64'])
+    logging.info(f"Sayısal sütunlar seçildi. Toplam {len(numeric_df.columns)} sütun bulundu.")
 
     # 2. Korelasyon matrisini hesapla
     correlation_matrix = numeric_df.corr()
+    logging.info("Korelasyon matrisi hesaplandı.")
 
     # 3. Yüksek korelasyonları filtrele
     high_corr_pairs = []
@@ -27,6 +31,7 @@ def run_correlation_analysis(df, output_folder="data"):
         for idx in correlation_matrix.index:
             if col != idx and abs(correlation_matrix.loc[idx, col]) > 0.7:
                 high_corr_pairs.append((idx, col, correlation_matrix.loc[idx, col]))
+    logging.info(f"Yüksek korelasyonlu {len(high_corr_pairs)} çift bulundu.")
 
     # 4. Korelasyon matrisini Excel olarak kaydet
     correlation_excel_path = os.path.join(analysis_folder, "correlation_matrix.xlsx")
@@ -37,7 +42,7 @@ def run_correlation_analysis(df, output_folder="data"):
                 high_corr_pairs, columns=["Feature 1", "Feature 2", "Correlation"]
             )
             high_corr_df.to_excel(writer, sheet_name="High Correlations", index=False)
-    print(f"Korelasyon matrisi ve yüksek korelasyonlar '{correlation_excel_path}' olarak kaydedildi.")
+    logging.info(f"Korelasyon matrisi ve yüksek korelasyonlar Excel dosyasına kaydedildi: {correlation_excel_path}")
 
     # 5. Korelasyon ısı haritasını görselleştir
     plt.figure(figsize=(12, 10))
@@ -46,12 +51,12 @@ def run_correlation_analysis(df, output_folder="data"):
     plt.title("Korelasyon Matrisi Isı Haritası")
     plt.savefig(heatmap_path)
     plt.close()
-    print(f"Korelasyon ısı haritası '{heatmap_path}' olarak kaydedildi.")
+    logging.info(f"Korelasyon ısı haritası kaydedildi: {heatmap_path}")
 
     # 6. Yüksek korelasyon çiftlerini konsola raporla
     if high_corr_pairs:
-        print("\nYüksek korelasyon bulunan çiftler:")
+        logging.info("Yüksek korelasyon bulunan çiftler:")
         for idx, col, corr_value in high_corr_pairs:
-            print(f"{idx} ve {col}: {corr_value:.2f}")
+            logging.info(f"{idx} ve {col}: {corr_value:.2f}")
     else:
-        print("\nYüksek korelasyonlu çiftler bulunamadı.")
+        logging.info("Yüksek korelasyonlu çiftler bulunamadı.")

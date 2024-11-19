@@ -1,5 +1,6 @@
 import pandas as pd
 import pytz
+import logging
 from datetime import datetime, timezone
 
 def process_fixture_data(fixtures, season_year):
@@ -7,9 +8,12 @@ def process_fixture_data(fixtures, season_year):
     API'den indirilen maç verilerini işler ve bir pandas DataFrame'e dönüştürür.
     Zaman damgasını Türkiye saatine dönüştürür.
     """
+    logging.info(f"{season_year} sezonu için maç verileri işleniyor...")
+    
     # Türkiye saat dilimi (Europe/Istanbul)
     istanbul_tz = pytz.timezone("Europe/Istanbul")
-
+    logging.info("Türkiye saat dilimi (Europe/Istanbul) ayarlandı.")
+    
     # JSON verisinden seçilen bilgileri çıkar ve işlenmiş bir liste oluştur
     fixtures_data = []
     for fixture in fixtures:
@@ -26,6 +30,7 @@ def process_fixture_data(fixtures, season_year):
         else:
             local_time_str = None  # Eğer zaman bilgisi yoksa
 
+        # İşlenmiş fixture verisini listeye ekle
         fixtures_data.append({
             "Fixture ID": fixture.get("fixture", {}).get("id"),
             "Timestamp": local_time_str,  # Türkiye saati olarak kaydedildi
@@ -45,8 +50,10 @@ def process_fixture_data(fixtures, season_year):
             "Fulltime Home Score": fixture.get("score", {}).get("fulltime", {}).get("home"),
             "Fulltime Away Score": fixture.get("score", {}).get("fulltime", {}).get("away")
         })
+    logging.info(f"{len(fixtures_data)} adet maç bilgisi işlendi.")
     
     # DataFrame oluştur
     df = pd.DataFrame(fixtures_data)
+    logging.info(f"DataFrame oluşturuldu. Toplam satır sayısı: {len(df)}")
     
     return df

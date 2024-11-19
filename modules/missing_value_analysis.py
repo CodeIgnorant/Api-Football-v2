@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import logging
 
 def run_missing_value_analysis(df, output_folder="data"):
     """
@@ -11,10 +12,10 @@ def run_missing_value_analysis(df, output_folder="data"):
     # Analiz için özel bir alt klasör oluştur
     analysis_folder = os.path.join(output_folder, "missing_value_analysis")
     os.makedirs(analysis_folder, exist_ok=True)
+    logging.info(f"Eksik veri analizi için '{analysis_folder}' klasörü oluşturuldu.")
 
-    print("Eksik veri analizi yapılıyor...")
-    
     # Eksik değerlerin sayısını ve yüzdesini hesapla
+    logging.info("Eksik veri analizi başlatılıyor...")
     missing_counts = df.isnull().sum()
     missing_percentage = (missing_counts / len(df)) * 100
     missing_data = pd.DataFrame({
@@ -27,15 +28,15 @@ def run_missing_value_analysis(df, output_folder="data"):
     missing_data = missing_data[missing_data["Missing Count"] > 0]
     
     if not missing_data.empty:
-        print("\nEksik veri bulunan sütunlar:")
-        print(missing_data)
+        logging.info("Eksik veri bulunan sütunlar analiz edildi.")
+        logging.debug(f"\n{missing_data}")
     else:
-        print("\nEksik veri bulunamadı.")
-    
+        logging.info("Eksik veri bulunamadı.")
+
     # Eksik veri raporunu kaydet
     output_path = os.path.join(analysis_folder, "missing_value_analysis.xlsx")
     if not missing_data.empty:
         missing_data.to_excel(output_path, index=False)
-        print(f"Eksik veri analizi '{output_path}' dosyasına kaydedildi.")
+        logging.info(f"Eksik veri analizi Excel dosyasına kaydedildi: {output_path}")
     else:
-        print(f"Analiz sonucunda eksik veri bulunmadığından '{analysis_folder}' içinde bir dosya oluşturulmadı.")
+        logging.info(f"Eksik veri bulunamadı. '{analysis_folder}' klasörüne herhangi bir dosya oluşturulmadı.")

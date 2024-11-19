@@ -7,31 +7,66 @@ from modules.over_under import calculate_over_under
 from modules.goal_range import calculate_goal_range
 from modules.both_team_score import calculate_both_team_score
 from modules.cs_fail_score import calculate_clean_sheets_and_fail_to_score
+from modules.ml_halftime_metrics import calculate_halftime_metrics
+from modules.ml_secondhalf_metrics import calculate_secondhalf_metrics
+from modules.ml_fulltime_metrics import calculate_fulltime_metrics
+from modules.ml_result_win_rates import calculate_result_win_rates
 from datetime import datetime, timedelta
 
-def process_all_data(fixtures, season_year):
-    """
-    Process all data for fixtures by applying various calculations.
-    :param fixtures: List of fixture data.
-    :param season_year: Season year for fixtures.
-    :return: Processed DataFrame with all calculations and upcoming matches.
-    """
-    # Ham veriyi işlenmiş DataFrame'e dönüştür
-    df = process_fixture_data(fixtures, season_year)
 
-    # Tarihleri datetime formatına dönüştür
+def process_all_data(df, season_year):
+    """
+    Verilen tüm maçlar üzerinde işlem yapar.
+    Gereksiz maçları filtreler, Round sütununu sayısallaştırır ve hesaplamaları yapar.
+    Eksik verileri yalnızca tamamlanmış maçlar için doldurur ve ardından tüm maçlar için ML metriklerini hesaplar.
+    :param df: İşlenecek tüm maçları içeren DataFrame.
+    :param season_year: Sezon yılı.
+    :return: İşlenmiş DataFrame.
+    """
+
+    # Timestamp sütununu datetime formatına dönüştür
     df["Timestamp"] = pd.to_datetime(df["Timestamp"], format='%Y-%m-%d %H:%M:%S')
 
-    # Sadece 'FT' olan maçları filtrele
-    df_finished = df[df["Status Short"] == "FT"].copy()
-    print(f"Toplam oynanmış maç sayısı: {len(df_finished)}")
+    # 1. Status Short ve Timestamp'e göre gereksiz maçları çıkar
+    today = datetime.now()
+    tomorrow = today + timedelta(days=1)
+    day_after_tomorrow = today + timedelta(days=2)
 
-    # Eksik verileri kontrol et ve "0" ile doldur
+    df = df[
+        (df["Status Short"] == "FT") | 
+        ((df["Timestamp"] >= today) & (df["Timestamp"] < day_after_tomorrow + timedelta(days=1)))
+    ]
+    print(f"Kalan maç sayısı: {len(df)}")
+
+    # 2. Gereksiz sütunları kontrol et ve çıkart
+    columns_to_drop = [
+        "Fixture ID", "League ID", "League Name", "League Country",
+        "League Season", "Home Team Name", "Away Team Name"
+    ]
+    df = df.drop(columns=columns_to_drop, errors="ignore")
+    print(f"Gereksiz sütunlar kaldırıldı: {columns_to_drop}")
+
+    # 3. Round sütununu sayısal bir değere dönüştür
+    try:
+        df['Round'] = df['Round'].apply(
+            lambda x: int(x.split("-")[-1].strip()) if "-" in x else None
+        )
+        print("Round sütunu başarıyla sayısal değerlere dönüştürüldü.")
+    except Exception as e:
+        print(f"Round sütunu dönüştürülürken bir hata oluştu: {e}")
+
+    # 4. Round sütununa göre veriyi sıralama
+    df = df.sort_values(by='Round').reset_index(drop=True)
+    print("DataFrame, Round sütununa göre sıralandı.")
+
+    # 5. Eksik verileri doldurma
     columns_to_fill = [
         "Halftime Home Score", "Halftime Away Score",
         "Fulltime Home Score", "Fulltime Away Score"
     ]
-    missing_counts = df_finished[columns_to_fill].isnull().sum()
+
+    completed_matches = df[df["Status Short"] == "FT"].copy()
+    missing_counts = completed_matches[columns_to_fill].isnull().sum()
 
     for column, missing_count in missing_counts.items():
         if missing_count > 0:
@@ -39,29 +74,26 @@ def process_all_data(fixtures, season_year):
         else:
             print(f"{column} sütununda eksik değer bulunamadı.")
 
-    # Eksik değerleri "0" ile doldur
-    df_finished[columns_to_fill] = df_finished[columns_to_fill].fillna(0)
+    # Sadece tamamlanmış maçlar için eksik değerleri doldur
+    df.loc[df["Status Short"] == "FT", columns_to_fill] = completed_matches[columns_to_fill].fillna(0)
 
-    # Ek hesaplamaları sırayla uygula
-    df_finished = calculate_secondhalf_scores(df_finished)
-    df_finished = calculate_match_result(df_finished)
-    df_finished = calculate_total_goals(df_finished)
-    df_finished = calculate_over_under(df_finished)
-    df_finished = calculate_goal_range(df_finished)
-    df_finished = calculate_both_team_score(df_finished)
-    df_finished = calculate_clean_sheets_and_fail_to_score(df_finished)
+    # 6. Tamamlanmış maçlar için hesaplamalar
+    print("Tamamlanmış maçlar için hesaplamalar başlatılıyor...")
+    df.loc[df["Status Short"] == "FT"] = calculate_secondhalf_scores(df[df["Status Short"] == "FT"])
+    df.loc[df["Status Short"] == "FT"] = calculate_match_result(df[df["Status Short"] == "FT"])
+    df.loc[df["Status Short"] == "FT"] = calculate_total_goals(df[df["Status Short"] == "FT"])
+    df.loc[df["Status Short"] == "FT"] = calculate_over_under(df[df["Status Short"] == "FT"])
+    df.loc[df["Status Short"] == "FT"] = calculate_goal_range(df[df["Status Short"] == "FT"])
+    df.loc[df["Status Short"] == "FT"] = calculate_both_team_score(df[df["Status Short"] == "FT"])
+    df.loc[df["Status Short"] == "FT"] = calculate_clean_sheets_and_fail_to_score(df[df["Status Short"] == "FT"])
+    print("Tamamlanmış maçlar için hesaplamalar tamamlandı.")
 
-    # Bugün, yarın ve ertesi günün tarihlerini belirle
-    today = datetime.now()
-    tomorrow = today + timedelta(days=1)
-    day_after_tomorrow = today + timedelta(days=2)
+    # 7. Tüm maçlar için ML metriklerini hesaplama
+    print("Tüm maçlar için ML metrikleri hesaplanıyor...")
+    df = calculate_halftime_metrics(df)
+    df = calculate_secondhalf_metrics(df)
+    df = calculate_fulltime_metrics(df)
+    df = calculate_result_win_rates(df)
+    print("Tüm maçlar için ML metrikleri hesaplandı.")
 
-    # Tarih aralığındaki maçları filtrele
-    upcoming_matches = df[
-        (df["Timestamp"] >= today) &
-        (df["Timestamp"] < day_after_tomorrow + timedelta(days=1))  # 3 günlük aralığı kapsar
-    ].copy()
-
-    print(f"Sıradaki üç gün içinde toplam {len(upcoming_matches)} maç bulundu.")
-
-    return df_finished, upcoming_matches
+    return df

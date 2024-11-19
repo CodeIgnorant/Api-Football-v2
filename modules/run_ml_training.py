@@ -1,4 +1,5 @@
 import os
+import logging
 from modules.ml_trainer import train_and_evaluate
 import warnings
 
@@ -10,10 +11,10 @@ def run_ml_training(ml_df):
     ML modellerini eğitmek ve değerlendirmek için ana fonksiyon.
     :param ml_df: ML için hazırlanmış DataFrame.
     """
-    print("\n--- ML Eğitimi ve Değerlendirme Başlıyor ---\n")
+    logging.info("ML Eğitimi ve Değerlendirme Başlıyor.")
 
     # Precision ve Recall açıklaması
-    print("""
+    logging.info("""
     === Precision ve Recall Açıklaması ===
 
     - Precision (Kesinlik): Modelin "kendi dediği şey" konusunda ne kadar doğru olduğunu ölçer.
@@ -21,12 +22,6 @@ def run_ml_training(ml_df):
 
     - Recall (Duyarlılık): Modelin "olayları kaçırma oranını" ölçer.
       Örneğin, toplamda 10 maçta ev sahibi kazanmışsa ve model bu maçların sadece 6'sını doğru tahmin etmişse, recall düşük olacaktır.
-
-    Sizin Örneğinizde:
-    - Eğer bir ligde "Ev sahibi kazanır" çok nadir oluyorsa, **precision** önemlidir (yanlış tahmin yapmaktan kaçınırız).
-    - Eğer "Ev sahibi kazanır" durumlarını kesinlikle yakalamak istiyorsak, **recall** önemlidir.
-
-    =======================================
     """)
 
     # Label ve features yapılandırması
@@ -51,22 +46,27 @@ def run_ml_training(ml_df):
     ]
 
     # Eğitim ve değerlendirme
-    model_results = train_and_evaluate(ml_df, label_configs)
+    try:
+        model_results = train_and_evaluate(ml_df, label_configs)
+        logging.info("ML eğitim ve değerlendirme başarıyla tamamlandı.")
+    except Exception as e:
+        logging.error(f"ML eğitim ve değerlendirme sırasında hata oluştu: {e}")
+        return None
 
     # Her sınıf için en iyi algoritmayı bul ve yazdır
-    print("\n--- Sınıf Bazlı F1 Skorları ---\n")
+    logging.info("Sınıf bazlı F1 skorları inceleniyor.")
     class_best_results = {}
     numbered_algorithms = []
     algorithm_number = 1
 
     for label, results in model_results.items():
-        print(f"\n=== {label} için algoritmalar ===\n")
+        logging.info(f"{label} için algoritmalar değerlendirilirken.")
         for model_name, metrics in results.items():
             class_reports = metrics.get("classification_report", {})
             for class_name, class_metrics in class_reports.items():
                 if isinstance(class_metrics, dict):  # Sadece sınıf metriklerini al
                     f1_score = class_metrics.get("f1-score", 0)
-                    print(f"  {model_name} modeli, Sınıf '{class_name}' için F1-Score: {f1_score:.4f}")
+                    logging.info(f"{model_name} modeli, Sınıf '{class_name}' için F1-Score: {f1_score:.4f}")
                     
                     # En iyi algoritmayı kaydet
                     if class_name not in class_best_results or f1_score > class_best_results[class_name][1]:
@@ -75,20 +75,19 @@ def run_ml_training(ml_df):
             # Algoritmaları numaralandırarak listele
             numbered_algorithms.append((algorithm_number, model_name, label))
             algorithm_number += 1
-            print("\n" + "-" * 50 + "\n")
 
     # Kullanıcıdan seçim yapmasını isteme
-    print("\n--- Algoritma Önerisi ve Kullanıcı Seçimi ---\n")
+    logging.info("Algoritma önerisi ve kullanıcı seçimi aşamasına geçiliyor.")
     for idx, model_name, label in numbered_algorithms:
-        print(f"{idx}: {model_name} modeli ({label})")
+        logging.info(f"{idx}: {model_name} modeli ({label})")
     
     selected_number = int(input("\nHangi algoritma ile devam etmek istiyorsunuz? Numara giriniz: ").strip())
     selected_algorithm = next((algo for algo in numbered_algorithms if algo[0] == selected_number), None)
 
     if selected_algorithm:
-        print(f"\nSeçilen algoritma: {selected_algorithm[1]} modeli, {selected_algorithm[2]} etiketi ile.")
+        logging.info(f"Seçilen algoritma: {selected_algorithm[1]} modeli, {selected_algorithm[2]} etiketi ile.")
     else:
-        print("\nGeçerli bir seçim yapılmadı.")
-
-    print("\n--- ML Eğitimi ve Değerlendirme Tamamlandı ---")
+        logging.warning("Geçerli bir seçim yapılmadı.")
+    
+    logging.info("ML Eğitimi ve Değerlendirme Tamamlandı.")
     return model_results

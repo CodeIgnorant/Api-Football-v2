@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
+import logging
 
 def run_distribution_analysis(df, output_folder="data"):
     """
@@ -14,7 +15,7 @@ def run_distribution_analysis(df, output_folder="data"):
     analysis_folder = os.path.join(output_folder, "distribution_analysis")
     os.makedirs(analysis_folder, exist_ok=True)
     
-    print("Veri dağılımı analizi yapılıyor...")
+    logging.info("Veri dağılımı analizi başlatılıyor...")
 
     # Sayısal sütunlar için histogramlar
     numeric_columns = df.select_dtypes(include=['float64', 'int64']).columns
@@ -27,7 +28,7 @@ def run_distribution_analysis(df, output_folder="data"):
         plot_path = os.path.join(analysis_folder, f"{col}_distribution.png")
         plt.savefig(plot_path)
         plt.close()
-        print(f"{col} için histogram kaydedildi: {plot_path}")
+        logging.info(f"{col} için histogram kaydedildi: {plot_path}")
 
     # Kategorik sütunlar için bar grafikleri
     categorical_columns = df.select_dtypes(include=['object', 'category']).columns
@@ -40,6 +41,6 @@ def run_distribution_analysis(df, output_folder="data"):
         plot_path = os.path.join(analysis_folder, f"{col}_distribution.png")
         plt.savefig(plot_path)
         plt.close()
-        print(f"{col} için bar grafiği kaydedildi: {plot_path}")
+        logging.info(f"{col} için bar grafiği kaydedildi: {plot_path}")
 
-    print("Veri dağılımı analizi tamamlandı.")
+    logging.info("Veri dağılımı analizi tamamlandı.")
