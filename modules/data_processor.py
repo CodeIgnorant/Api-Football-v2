@@ -1,5 +1,4 @@
 import pandas as pd
-from modules.fixture_processor import process_fixture_data
 from modules.secondhalf_score import calculate_secondhalf_scores
 from modules.result import calculate_match_result
 from modules.total_goals import calculate_total_goals
@@ -38,15 +37,7 @@ def process_all_data(df, season_year):
     ]
     print(f"Kalan maç sayısı: {len(df)}")
 
-    # 2. Gereksiz sütunları kontrol et ve çıkart
-    columns_to_drop = [
-        "Fixture ID", "League ID", "League Name", "League Country",
-        "League Season", "Home Team Name", "Away Team Name"
-    ]
-    df = df.drop(columns=columns_to_drop, errors="ignore")
-    print(f"Gereksiz sütunlar kaldırıldı: {columns_to_drop}")
-
-    # 3. Round sütununu sayısal bir değere dönüştür
+    # 2. Round sütununu sayısal bir değere dönüştür
     try:
         df['Round'] = df['Round'].apply(
             lambda x: int(x.split("-")[-1].strip()) if "-" in x else None
@@ -55,27 +46,28 @@ def process_all_data(df, season_year):
     except Exception as e:
         print(f"Round sütunu dönüştürülürken bir hata oluştu: {e}")
 
-    # 4. Round sütununa göre veriyi sıralama
+    # 3. Round sütununa göre veriyi sıralama
     df = df.sort_values(by='Round').reset_index(drop=True)
     print("DataFrame, Round sütununa göre sıralandı.")
 
-    # 5. Eksik verileri doldurma
+    # 4. Eksik verileri doldurma
     columns_to_fill = [
         "Halftime Home Score", "Halftime Away Score",
         "Fulltime Home Score", "Fulltime Away Score"
     ]
-    completed_matches = df[df["Status Short"] == "FT"].copy()
-    missing_counts = completed_matches[columns_to_fill].isnull().sum()
+
+    missing_counts = df.loc[df["Status Short"] == "FT", columns_to_fill].isnull().sum()
 
     for column, missing_count in missing_counts.items():
         if missing_count > 0:
             print(f"{column} sütununda {missing_count} eksik değer bulundu ve '0' ile dolduruldu.")
         else:
             print(f"{column} sütununda eksik değer bulunamadı.")
-    # Eksik değerleri doldur
-    df.loc[df["Status Short"] == "FT", columns_to_fill] = completed_matches[columns_to_fill].fillna(0)
 
-    # 6. Tamamlanmış maçlar için hesaplamalar
+    # Eksik değerleri doldur
+    df.loc[df["Status Short"] == "FT", columns_to_fill] = df.loc[df["Status Short"] == "FT", columns_to_fill].fillna(0)
+
+    # 5. Tamamlanmış maçlar için hesaplamalar
     print("Tamamlanmış maçlar için hesaplamalar başlatılıyor...")
     df = calculate_secondhalf_scores(df)
     df = calculate_match_result(df)
@@ -86,7 +78,7 @@ def process_all_data(df, season_year):
     df = calculate_clean_sheets_and_fail_to_score(df)
     print("Tamamlanmış maçlar için hesaplamalar tamamlandı.")
 
-    # 7. Tüm maçlar için ML metriklerini hesaplama
+    # 6. Tüm maçlar için ML metriklerini hesaplama
     print("Tüm maçlar için ML metrikleri hesaplanıyor...")
     df = calculate_halftime_metrics(df)
     df = calculate_secondhalf_metrics(df)

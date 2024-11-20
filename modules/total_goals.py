@@ -11,16 +11,19 @@ def calculate_total_goals(df):
     logging.info("Toplam gol hesaplama işlemi başlıyor...")
 
     try:
+        # Sadece tamamlanmış maçlar için işlem yap
+        completed_matches = df[df["Status Short"] == "FT"]
+
         # Calculate Halftime Total Goals
-        df['Halftime Total Goals'] = df['Halftime Home Score'] + df['Halftime Away Score']
+        df.loc[completed_matches.index, 'Halftime Total Goals'] = completed_matches['Halftime Home Score'] + completed_matches['Halftime Away Score']
         logging.info("'Halftime Total Goals' sütunu başarıyla eklendi.")
 
         # Calculate Secondhalf Total Goals
-        df['Secondhalf Total Goals'] = df['Secondhalf Home Score'] + df['Secondhalf Away Score']
+        df.loc[completed_matches.index, 'Secondhalf Total Goals'] = completed_matches['Secondhalf Home Score'] + completed_matches['Secondhalf Away Score']
         logging.info("'Secondhalf Total Goals' sütunu başarıyla eklendi.")
 
         # Calculate Fulltime Total Goals
-        df['Fulltime Total Goals'] = df['Fulltime Home Score'] + df['Fulltime Away Score']
+        df.loc[completed_matches.index, 'Fulltime Total Goals'] = completed_matches['Fulltime Home Score'] + completed_matches['Fulltime Away Score']
         logging.info("'Fulltime Total Goals' sütunu başarıyla eklendi.")
 
     except KeyError as e:
@@ -28,4 +31,5 @@ def calculate_total_goals(df):
     except Exception as e:
         logging.error(f"Toplam gol hesaplanırken bir hata oluştu: {e}")
 
+    logging.info("Toplam gol hesaplama işlemi tamamlandı.")
     return df

@@ -26,7 +26,7 @@ def run_class_imbalance_analysis(df, labels, output_folder="data"):
 
         # Eksik değer kontrolü
         if df[label].isnull().any():
-            print(f"{label} sütununda eksik değerler var. Atlınıyor.")
+            print(f"{label} sütununda eksik değerler var. Atlanıyor.")
             continue
         
         # Sınıf dağılımı
