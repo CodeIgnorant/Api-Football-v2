@@ -9,7 +9,7 @@ from modules.run_analysis import run_all_analyses
 from modules.data_splitter import split_processed_data
 from modules.columns_selector import select_columns
 from modules.ml_preparation import prepare_ml_data
-from modules.ml_algorithms.xgboost_trainer import train_xgboost  
+from modules.ml_algorithms.logistic_regression_trainer import train_logistic_regression
 
 def main():
     """
@@ -71,10 +71,10 @@ def main():
     )
     print("ML veri hazırlık işlemi tamamlandı.")
 
-    # 13. XGBoost ile model eğitimi ve değerlendirme
-    print("\nXGBoost model eğitimi başlatılıyor...")
-    model, predictions = train_xgboost(X_train_scaled, X_test_scaled, y_train_resampled, y_test)
-    print("XGBoost modeli eğitimi ve değerlendirmesi tamamlandı.")
+    # 13. Logistic Regression ile model eğitimi ve değerlendirme
+    print("\nLogistic Regression model eğitimi başlatılıyor...")
+    model, predictions = train_logistic_regression(X_train_scaled, X_test_scaled, y_train_resampled, y_test)
+    print("Logistic Regression modeli eğitimi ve değerlendirmesi tamamlandı.")
 
 if __name__ == "__main__":
     main()
