@@ -7,6 +7,9 @@ from modules.save_helpers import save_to_excel, generate_file_name
 from modules.folder_manager import initialize_data_folder
 from modules.run_analysis import run_all_analyses
 from modules.data_splitter import split_processed_data
+from modules.columns_selector import select_columns
+from modules.ml_preparation import prepare_ml_data
+from modules.ml_algorithms.xgboost_trainer import train_xgboost  
 
 def main():
     """
@@ -53,6 +56,25 @@ def main():
         print("Analizler tamamlandı.")
     else:
         print("Analizler atlandı.")
+
+    # 11. Kullanıcıdan sütun seçimlerini al
+    print("\nML için sütun seçim aşamasına geçiliyor...")
+    labels, features, selected_labels, selected_features = select_columns(ml_df)
+    print(f"Labels ve features sütunları ayrıldı.")
+    print(f"Labels sütunları: {selected_labels}")
+    print(f"Features sütunları: {selected_features}")
+
+    # 12. Seçilen sütunları ML veri hazırlık fonksiyonuna gönder
+    print("\nML veri hazırlık aşamasına geçiliyor...")
+    X_train_scaled, X_test_scaled, y_train_resampled, y_test = prepare_ml_data(
+        ml_df, selected_features, selected_labels
+    )
+    print("ML veri hazırlık işlemi tamamlandı.")
+
+    # 13. XGBoost ile model eğitimi ve değerlendirme
+    print("\nXGBoost model eğitimi başlatılıyor...")
+    model, predictions = train_xgboost(X_train_scaled, X_test_scaled, y_train_resampled, y_test)
+    print("XGBoost modeli eğitimi ve değerlendirmesi tamamlandı.")
 
 if __name__ == "__main__":
     main()

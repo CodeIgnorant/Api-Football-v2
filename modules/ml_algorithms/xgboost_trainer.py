@@ -1,56 +1,96 @@
-import logging
 import xgboost as xgb
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report
-from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.model_selection import GridSearchCV
+import logging
+import numpy as np
 
-def run_xgboost(ml_df, features, label):
+# Logging yapılandırması
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler()]
+)
+
+def train_xgboost(X_train, X_test, y_train, y_test):
     """
-    XGBoost modelini çalıştırır ve sonuçları döndürür.
-    
-    :param ml_df: ML için hazırlanmış DataFrame.
-    :param features: Kullanılacak features listesi.
-    :param label: Hedef label.
-    :return: Performans metriklerini ve classification report'u içeren bir sözlük.
+    XGBoost modeli ile çok sınıflı sınıflandırma eğitimi ve değerlendirme işlemlerini yapar.
+    Hiperparametre optimizasyonu içerir.
+
+    Args:
+        X_train (ndarray): Eğitim özellikleri.
+        X_test (ndarray): Test özellikleri.
+        y_train (ndarray): Eğitim etiketleri.
+        y_test (ndarray): Test etiketleri.
+
+    Returns:
+        model: Eğitimli XGBoost modeli.
+        predictions: Test seti üzerindeki tahminler.
     """
-    logging.info(f"XGBoost modeli '{label}' için başlatılıyor...")
+    logging.info("XGBoost modeli eğitilmeye başlanıyor...")
 
-    try:
-        # Veriyi ayırma
-        logging.info("Veri train-test setlerine bölünüyor...")
-        X = ml_df[features]
-        y = ml_df[label]
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    # Sınıf sayısını belirle
+    num_classes = len(np.unique(y_train))
+    logging.info(f"Toplam sınıf sayısı: {num_classes}")
 
-        # Modeli oluşturma ve eğitme
-        logging.info("XGBoost modeli oluşturuluyor ve eğitiliyor...")
-        model = xgb.XGBClassifier(eval_metric="logloss", use_label_encoder=False)  # "use_label_encoder" kaldırıldı
-        model.fit(X_train, y_train)
-        logging.info("Model eğitimi tamamlandı.")
+    # Hiperparametre optimizasyonu için Grid Search
+    logging.info("Hiperparametre optimizasyonu başlatılıyor...")
+    param_grid = {
+        "max_depth": [3, 5, 7],         # Maksimum derinlik
+        "eta": [0.01, 0.1, 0.2],       # Öğrenme oranı
+        "num_boost_round": [50, 100]   # Boosting iterasyon sayısı
+    }
 
-        # Tahmin yapma
-        logging.info("Tahmin yapılıyor...")
-        y_pred = model.predict(X_test)
+    # Grid Search için XGBClassifier kullanıyoruz
+    xgb_model = xgb.XGBClassifier(
+        objective="multi:softprob",
+        num_class=num_classes,
+        eval_metric="mlogloss",
+        random_state=42,
+        use_label_encoder=False  # Sklearn API için gerekli
+    )
 
-        # Performans metriklerini hesaplama
-        logging.info("Model performans metrikleri hesaplanıyor...")
-        metrics = {
-            "accuracy": accuracy_score(y_test, y_pred),
-            "precision": precision_score(y_test, y_pred, average="weighted", zero_division=0),
-            "recall": recall_score(y_test, y_pred, average="weighted", zero_division=0),
-            "f1": f1_score(y_test, y_pred, average="weighted", zero_division=0),
-            "classification_report": classification_report(y_test, y_pred, output_dict=True)
-        }
+    grid_search = GridSearchCV(
+        estimator=xgb_model,
+        param_grid=param_grid,
+        scoring="accuracy",
+        cv=5,  # Çapraz doğrulama katman sayısı
+        verbose=1
+    )
 
-        # Classification Report'u konsola yazdırma
-        logging.info(f"XGBoost modeli için sınıflandırma raporu oluşturuldu: {label}")
-        print(f"\nXGBoost Classification Report for '{label}':")
-        print(classification_report(y_test, y_pred))
+    # Grid Search ile en iyi parametreleri bul
+    grid_search.fit(X_train, y_train)
+    best_params = grid_search.best_params_
+    logging.info(f"En iyi hiperparametreler: {best_params}")
 
-    except KeyError as e:
-        logging.error(f"XGBoost çalıştırılırken eksik sütun hatası: {e}")
-        return {"error": f"Missing column: {e}"}
-    except Exception as e:
-        logging.error(f"XGBoost çalıştırılırken bir hata oluştu: {e}")
-        return {"error": f"Unexpected error: {e}"}
+    # En iyi parametrelerle modeli yeniden eğit
+    logging.info("En iyi parametrelerle model yeniden eğitiliyor...")
+    final_model = xgb.train(
+        params={
+            "objective": "multi:softprob",
+            "num_class": num_classes,
+            "eval_metric": "mlogloss",
+            "eta": best_params["eta"],
+            "max_depth": best_params["max_depth"],
+            "random_state": 42
+        },
+        dtrain=xgb.DMatrix(X_train, label=y_train),
+        num_boost_round=best_params["num_boost_round"]
+    )
 
-    return metrics
+    # Test seti üzerinde tahminler
+    logging.info("XGBoost tahminleri yapılıyor...")
+    predictions_prob = final_model.predict(xgb.DMatrix(X_test))  # Olasılık tahmini
+    predictions = np.argmax(predictions_prob, axis=1)  # Maksimum olasılığa sahip sınıfı seç
+
+    # Model performansı
+    accuracy = accuracy_score(y_test, predictions)
+    logging.info(f"Model Accuracy: {accuracy}")
+
+    logging.info("Classification Report:")
+    report = classification_report(y_test, predictions, target_names=["Draw (0)", "Home Win (1)", "Away Win (2)"])
+    print(report)
+
+    logging.info("Confusion Matrix:")
+    print(confusion_matrix(y_test, predictions))
+
+    return final_model, predictions
