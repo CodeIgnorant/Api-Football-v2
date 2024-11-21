@@ -10,6 +10,7 @@ from modules.data_splitter import split_processed_data
 from modules.columns_selector import select_columns
 from modules.ml_preparation import prepare_ml_data
 from modules.ml_algorithms.logistic_regression_trainer import train_logistic_regression
+from modules.ml_predictions import make_predictions
 
 def main():
     """
@@ -75,6 +76,21 @@ def main():
     print("\nLogistic Regression model eğitimi başlatılıyor...")
     model, predictions = train_logistic_regression(X_train_scaled, X_test_scaled, y_train_resampled, y_test)
     print("Logistic Regression modeli eğitimi ve değerlendirmesi tamamlandı.")
+
+    # 14. Prediction işlemi
+    print("\nPrediction işlemi başlatılıyor...")
+    predicted_df = make_predictions(model, prediction_df, selected_features)
+    if predicted_df is not None:
+        print("Tahminler başarıyla tamamlandı. Sonuçlar aşağıda listeleniyor:\n")
+        
+        # Terminalde anlamlı bir şekilde tahmin sonuçlarını göster
+        for _, row in predicted_df.iterrows():
+            home_team = row.get("Home Team Name", "Unknown")
+            away_team = row.get("Away Team Name", "Unknown")
+            prediction = row.get("Prediction", "Unknown")
+            print(f"{home_team} vs {away_team} - Tahmin: {prediction}")
+    else:
+        print("Prediction işlemi sırasında bir hata oluştu.")
 
 if __name__ == "__main__":
     main()

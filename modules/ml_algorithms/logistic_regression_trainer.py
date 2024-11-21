@@ -29,14 +29,14 @@ def train_logistic_regression(X_train, X_test, y_train, y_test):
 
     # Hiperparametre ızgarası
     param_grid = {
-        "solver": ["lbfgs", "liblinear", "sag"],
+        "solver": ["lbfgs", "sag", "saga"],  # liblinear kaldırıldı
         "class_weight": ["balanced", None],
         "C": [0.01, 0.1, 1, 10, 100],  # Regularizasyon parametresi
         "max_iter": [100, 200, 300]
     }
 
     # Logistic Regression modeli
-    base_model = LogisticRegression(multi_class="multinomial", random_state=42)
+    base_model = LogisticRegression(multi_class="ovr", random_state=42)
 
     # GridSearchCV ile hiperparametre optimizasyonu
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
