@@ -1,8 +1,8 @@
 import logging
-from modules.correlation_analysis import run_correlation_analysis
-from modules.distribution_analysis import run_distribution_analysis
-from modules.missing_value_analysis import run_missing_value_analysis
-from modules.class_imbalance_analysis import run_class_imbalance_analysis
+from modules.analysis.correlation_analysis import run_correlation_analysis
+from modules.analysis.distribution_analysis import run_distribution_analysis
+from modules.analysis.missing_value_analysis import run_missing_value_analysis
+from modules.analysis.class_imbalance_analysis import run_class_imbalance_analysis
 
 def run_all_analyses(ml_df):
     """

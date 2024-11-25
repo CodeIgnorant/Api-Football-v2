@@ -2,7 +2,6 @@ import logging
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
-from modules.ml_metrics_calculator import calculate_metrics
 
 def run_randomforest(ml_df, features, label):
     """

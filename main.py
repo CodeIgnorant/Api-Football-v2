@@ -1,16 +1,16 @@
-from modules.api_manager import get_api_client
-from modules.country_league_selector import select_country_and_league
-from modules.fixture_fetcher import fetch_fixtures
-from modules.fixture_processor import process_fixture_data
-from modules.data_processor import process_all_data
-from modules.save_helpers import save_to_excel, generate_file_name
-from modules.folder_manager import initialize_data_folder
-from modules.run_analysis import run_all_analyses
-from modules.data_splitter import split_processed_data
-from modules.columns_selector import select_columns
-from modules.ml_preparation import prepare_ml_data
+from modules.api.api_manager import get_api_client
+from modules.api.country_league_selector import select_country_and_league
+from modules.api.fixture_fetcher import fetch_fixtures
+from modules.api.fixture_processor import process_fixture_data
+from modules.processing.data_processor import process_all_data
+from modules.io.save_helpers import save_to_excel, generate_file_name
+from modules.io.folder_manager import initialize_data_folder
+from modules.analysis.run_analysis import run_all_analyses
+from modules.processing.data_splitter import split_processed_data
+from modules.processing.columns_selector import select_columns
+from modules.processing.ml_preparation import prepare_ml_data
 from modules.ml_algorithms.logistic_regression_trainer import train_logistic_regression
-from modules.ml_predictions import make_predictions
+from modules.processing.ml_predictions import make_predictions
 
 def main():
     """

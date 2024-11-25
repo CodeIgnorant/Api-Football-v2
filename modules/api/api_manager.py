@@ -1,4 +1,4 @@
-from modules.api_client import APIClient
+from modules.api.api_client import APIClient
 import logging
 
 # Loglama yapılandırması
