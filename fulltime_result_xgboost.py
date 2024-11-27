@@ -1,15 +1,25 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.metrics import accuracy_score, classification_report
+from sklearn.preprocessing import LabelEncoder
 from xgboost import XGBClassifier, DMatrix
-from imblearn.over_sampling import SMOTE  # SMOTE kullanımı
+from imblearn.over_sampling import SMOTE
 from collections import Counter
 
 # 1. Data klasöründeki ml.csv dosyasını oku
 file_path = "data/ml.csv"
 ml_data = pd.read_csv(file_path)
 
-# 2. Hedef (target) sütunu ve özellik (features) sütunlarını belirleme
+# 2. Home Team ID ve Away Team ID için Label Encoding
+label_encoder_home = LabelEncoder()
+label_encoder_away = LabelEncoder()
+
+ml_data['Home Team ID'] = label_encoder_home.fit_transform(ml_data['Home Team ID'])
+ml_data['Away Team ID'] = label_encoder_away.fit_transform(ml_data['Away Team ID'])
+
+print("Home Team ID ve Away Team ID sütunları için Label Encoding tamamlandı.")
+
+# 3. Hedef (target) sütunu ve özellik (features) sütunlarını belirleme
 target_column = 'Fulltime Result'  # Hedef sütun
 feature_columns = [  # Özellik olarak kullanılacak sütunlar
     'Home Team ID',
@@ -28,7 +38,7 @@ feature_columns = [  # Özellik olarak kullanılacak sütunlar
     'Away Fulltime Result Draw',
 ]
 
-# 3. Özellikler (X) ve hedef (y) ayrımı
+# 4. Özellikler (X) ve hedef (y) ayrımı
 X = ml_data[feature_columns]
 y = ml_data[target_column]
 
@@ -106,6 +116,10 @@ print(classification_report(y_test, y_pred))
 # Prediction verisini oku
 prediction_file_path = "data/prediction.csv"
 prediction_data = pd.read_csv(prediction_file_path)
+
+# Prediction verisindeki takım ID’lerini dönüştürme
+prediction_data['Home Team ID'] = label_encoder_home.transform(prediction_data['Home Team ID'])
+prediction_data['Away Team ID'] = label_encoder_away.transform(prediction_data['Away Team ID'])
 
 # Modelin ihtiyaç duyduğu feature sütunlarını seç
 prediction_features = prediction_data[feature_columns]

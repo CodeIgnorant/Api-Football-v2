@@ -1,6 +1,7 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.metrics import accuracy_score, classification_report
+from sklearn.preprocessing import LabelEncoder  # Label Encoder ekledik
 from lightgbm import LGBMClassifier
 from imblearn.over_sampling import SMOTE  # SMOTE kullanımı
 from collections import Counter
@@ -8,6 +9,13 @@ from collections import Counter
 # 1. Data klasöründeki ml.csv dosyasını oku
 file_path = "data/ml.csv"
 ml_data = pd.read_csv(file_path)
+
+# Label Encoding işlemi
+label_encoder_home = LabelEncoder()
+label_encoder_away = LabelEncoder()
+
+ml_data['Home Team ID'] = label_encoder_home.fit_transform(ml_data['Home Team ID'])
+ml_data['Away Team ID'] = label_encoder_away.fit_transform(ml_data['Away Team ID'])
 
 # 2. Hedef (target) sütunu ve özellik (features) sütunlarını belirleme
 target_column = 'Fulltime Result'  # Hedef sütun
@@ -49,17 +57,23 @@ print("Sınıf Ağırlıkları:", class_weights)
 
 # LightGBM modeli için Randomized Search parametreleri
 param_distributions = {
-    'n_estimators': [3, 6, 12],  # Ağaç sayısı
-    'max_depth': [3, 5, 7],  # Maksimum derinlik
+    'n_estimators': [50, 100, 200],  # Ağaç sayısı
+    'max_depth': [3, 7, None],  # Maksimum derinlik (None: sınırsız)
     'learning_rate': [0.01, 0.05, 0.1],  # Öğrenme oranı
-    'num_leaves': [31, 63],  # Maksimum yaprak sayısı
-    'min_child_samples': [5, 10, 20],  # Dallanma için minimum örnek
-    'subsample': [0.8, 1.0],  # Alt örnekleme oranı
-    'colsample_bytree': [0.8, 1.0],  # Ağaç başına sütun örnekleme
-    'reg_alpha': [0.1, 0.5],  # L1 düzenleme
-    'reg_lambda': [0.5, 1.0],  # L2 düzenleme
-    'class_weight': [class_weights]  # Hesaplanan sınıf ağırlıkları
+    'num_leaves': [31, 63, 127],  # Maksimum yaprak sayısı
+    'min_child_samples': [5, 10, 20],  # Minimum dallanma örneği
+    'min_split_gain': [0, 0.1, 0.2],  # Bölünme için minimum kazanç
+    # 'subsample': [0.7, 0.8, 0.9],  # Alt örnekleme oranı
+    'bagging_fraction': [0.7, 0.8, 0.9],  # Alternatif olarak subsample yerine kullanılabilir
+    'bagging_freq': [1, 5],  # Eğer bagging_fraction kullanılıyorsa aktif edilebilir
+    'colsample_bytree': [0.7, 0.8, 1.0],  # Ağaç başına sütun örnekleme oranı
+    'reg_alpha': [0.0, 0.1, 0.5],  # L1 düzenleme
+    'reg_lambda': [0.0, 0.1, 0.5],  # L2 düzenleme
+    'class_weight': [class_weights],  # Sınıf ağırlıkları
+    'scale_pos_weight': [0.5, 1.0, 2.0],  # Pozitif sınıf ağırlığı
+    'random_state': [42]
 }
+
 
 # Randomized Search ile LightGBM optimizasyonu
 random_search = RandomizedSearchCV(
@@ -99,6 +113,8 @@ prediction_file_path = "data/prediction.csv"
 prediction_data = pd.read_csv(prediction_file_path)
 
 # Modelin ihtiyaç duyduğu feature sütunlarını seç
+prediction_data['Home Team ID'] = label_encoder_home.transform(prediction_data['Home Team ID'])
+prediction_data['Away Team ID'] = label_encoder_away.transform(prediction_data['Away Team ID'])
 prediction_features = prediction_data[feature_columns]
 
 # Tahmin yap

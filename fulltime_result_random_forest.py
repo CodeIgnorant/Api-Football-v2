@@ -2,6 +2,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
+from sklearn.preprocessing import LabelEncoder
 from imblearn.over_sampling import SMOTE
 from collections import Counter
 
@@ -9,7 +10,16 @@ from collections import Counter
 file_path = "data/ml.csv"
 ml_data = pd.read_csv(file_path)
 
-# 2. Hedef (target) sütunu ve özellik (features) sütunlarını belirleme
+# 2. Label Encoding for Home Team ID and Away Team ID
+label_encoder_home = LabelEncoder()
+label_encoder_away = LabelEncoder()
+
+ml_data['Home Team ID'] = label_encoder_home.fit_transform(ml_data['Home Team ID'])
+ml_data['Away Team ID'] = label_encoder_away.fit_transform(ml_data['Away Team ID'])
+
+print("Home Team ID ve Away Team ID sütunları için Label Encoding tamamlandı.")
+
+# 3. Hedef (target) sütunu ve özellik (features) sütunlarını belirleme
 target_column = 'Fulltime Result'  # Hedef sütun
 feature_columns = [  # Özellik olarak kullanılacak sütunlar
     'Home Team ID',
@@ -28,7 +38,7 @@ feature_columns = [  # Özellik olarak kullanılacak sütunlar
     'Away Fulltime Result Draw',
 ]
 
-# 3. Özellikler (X) ve hedef (y) ayrımı
+# 4. Özellikler (X) ve hedef (y) ayrımı
 X = ml_data[feature_columns]
 y = ml_data[target_column]
 
@@ -100,6 +110,9 @@ prediction_file_path = "data/prediction.csv"
 prediction_data = pd.read_csv(prediction_file_path)
 
 # Modelin ihtiyaç duyduğu feature sütunlarını seç
+prediction_data['Home Team ID'] = label_encoder_home.transform(prediction_data['Home Team ID'])
+prediction_data['Away Team ID'] = label_encoder_away.transform(prediction_data['Away Team ID'])
+
 prediction_features = prediction_data[feature_columns]
 
 # Tahmin yap
