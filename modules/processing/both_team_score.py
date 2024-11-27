@@ -12,8 +12,7 @@ def calculate_both_team_score(df):
     :param df: DataFrame containing fixture data.
     :return: DataFrame with new 'Both Team Score' column.
     """
-    logging.info("Both Team Score hesaplamaları başlatılıyor...")
-    
+
     try:
         # Sadece tamamlanmış maçları işle
         completed_matches = df[df["Status Short"] == "FT"]

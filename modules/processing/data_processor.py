@@ -10,6 +10,7 @@ from modules.processing.ml_halftime_metrics import calculate_halftime_metrics
 from modules.processing.ml_secondhalf_metrics import calculate_secondhalf_metrics
 from modules.processing.ml_fulltime_metrics import calculate_fulltime_metrics
 from modules.processing.ml_result_win_rates import calculate_result_win_rates
+from modules.processing.binary_win import calculate_binary_win
 from datetime import datetime, timedelta
 
 
@@ -46,9 +47,9 @@ def process_all_data(df, season_year):
     except Exception as e:
         print(f"Round sütunu dönüştürülürken bir hata oluştu: {e}")
 
-    # 3. Round sütununa göre veriyi sıralama
-    df = df.sort_values(by='Round').reset_index(drop=True)
-    print("DataFrame, Round sütununa göre sıralandı.")
+    # 3. Status Short ve Round sütunlarına göre veriyi sıralama
+    df = df.sort_values(by=['Status Short', 'Round'], ascending=[True, True]).reset_index(drop=True)
+    print("DataFrame, Status Short ve Round sütunlarına göre sıralandı.")
 
     # 4. Eksik verileri doldurma
     columns_to_fill = [
@@ -68,9 +69,9 @@ def process_all_data(df, season_year):
     df.loc[df["Status Short"] == "FT", columns_to_fill] = df.loc[df["Status Short"] == "FT", columns_to_fill].fillna(0)
 
     # 5. Tamamlanmış maçlar için hesaplamalar
-    print("Tamamlanmış maçlar için hesaplamalar başlatılıyor...")
     df = calculate_secondhalf_scores(df)
     df = calculate_match_result(df)
+    df = calculate_binary_win(df)
     df = calculate_total_goals(df)
     df = calculate_over_under(df)
     df = calculate_goal_range(df)
@@ -79,7 +80,6 @@ def process_all_data(df, season_year):
     print("Tamamlanmış maçlar için hesaplamalar tamamlandı.")
 
     # 6. Tüm maçlar için ML metriklerini hesaplama
-    print("Tüm maçlar için ML metrikleri hesaplanıyor...")
     df = calculate_halftime_metrics(df)
     df = calculate_secondhalf_metrics(df)
     df = calculate_fulltime_metrics(df)

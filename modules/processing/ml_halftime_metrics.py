@@ -13,7 +13,6 @@ def calculate_halftime_metrics(df):
     :param df: İşlenmekte olan DataFrame.
     :return: Güncellenmiş df.
     """
-    logging.info("Halftime metrikleri hesaplanmaya başlıyor...")
 
     # Halftime Cumulative Goals - Home
     df["Halftime Cumulative Goals - Home"] = df.apply(

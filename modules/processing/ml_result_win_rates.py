@@ -15,8 +15,6 @@ def calculate_result_win_rates(df):
     :param df: ML için hazırlanmakta olan DataFrame.
     :return: Güncellenmiş df.
     """
-    logging.info("Sonuç oranları hesaplanmaya başlıyor...")
-
     def calculate_rate(row, team_id_column, result_value, result_column):
         """
         Belirli bir takımın belirli bir sonuç oranını hesaplar.
@@ -36,7 +34,6 @@ def calculate_result_win_rates(df):
         return past_matches[past_matches[result_column] == result_value].shape[0] / total_matches
 
     # Fulltime Result oranları
-    logging.info("Fulltime sonuç oranları hesaplanıyor...")
     df["Home Fulltime Result Home Win"] = df.apply(
         lambda row: calculate_rate(row, "Home Team ID", 1, "Fulltime Result"), axis=1
     )
@@ -58,7 +55,6 @@ def calculate_result_win_rates(df):
     logging.info("Fulltime sonuç oranları başarıyla hesaplandı.")
 
     # Halftime Result oranları
-    logging.info("Halftime sonuç oranları hesaplanıyor...")
     df["Home Halftime Result Home Win"] = df.apply(
         lambda row: calculate_rate(row, "Home Team ID", 1, "Halftime Result"), axis=1
     )
@@ -80,7 +76,6 @@ def calculate_result_win_rates(df):
     logging.info("Halftime sonuç oranları başarıyla hesaplandı.")
 
     # Secondhalf Result oranları
-    logging.info("Secondhalf sonuç oranları hesaplanıyor...")
     df["Home Secondhalf Result Home Win"] = df.apply(
         lambda row: calculate_rate(row, "Home Team ID", 1, "Secondhalf Result"), axis=1
     )

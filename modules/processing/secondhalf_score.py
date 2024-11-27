@@ -9,8 +9,6 @@ def calculate_secondhalf_scores(df):
     :param df: DataFrame containing fixture data.
     :return: DataFrame with new second half score columns.
     """
-    logging.info("İkinci yarı skor hesaplama işlemi başlıyor...")
-
     try:
         # Sadece tamamlanmış maçları işlemek için filtre
         completed_matches = df[df["Status Short"] == "FT"]

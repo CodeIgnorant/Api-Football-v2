@@ -21,9 +21,7 @@ def calculate_goal_range(df):
             return 4.5
         else:
             return 6.5
-
-    logging.info("Goal Range hesaplamaları başlatılıyor...")
-    
+   
     try:
         # Sadece tamamlanmış maçları işle
         completed_matches = df[df["Status Short"] == "FT"]

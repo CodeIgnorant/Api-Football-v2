@@ -11,7 +11,6 @@ def calculate_over_under(df):
     :param df: DataFrame containing fixture data.
     :return: DataFrame with new over/under columns.
     """
-    logging.info("Fulltime Over/Under hesaplamaları başlatılıyor...")
 
     try:
         # Sadece tamamlanmış maçlar için işlem yap

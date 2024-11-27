@@ -13,8 +13,6 @@ def calculate_match_result(df):
     :param df: DataFrame containing fixture data.
     :return: DataFrame with new 'Fulltime Result', 'Halftime Result', and 'Secondhalf Result' columns.
     """
-    logging.info("Maç sonuçları hesaplama işlemi başlatılıyor...")
-
     try:
         # Sadece tamamlanmış maçları işlemek için filtre
         completed_matches = df[df["Status Short"] == "FT"]

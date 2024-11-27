@@ -13,7 +13,6 @@ def calculate_secondhalf_metrics(df):
     :param df: İşlenmekte olan DataFrame.
     :return: Güncellenmiş df.
     """
-    logging.info("Second Half metriklerinin hesaplanmasına başlandı...")
 
     # Second Half Cumulative Goals - Home
     df["Second Half Cumulative Goals - Home"] = df.apply(

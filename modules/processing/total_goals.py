@@ -8,8 +8,6 @@ def calculate_total_goals(df):
     :param df: DataFrame containing fixture data.
     :return: DataFrame with new total goals columns.
     """
-    logging.info("Toplam gol hesaplama işlemi başlıyor...")
-
     try:
         # Sadece tamamlanmış maçlar için işlem yap
         completed_matches = df[df["Status Short"] == "FT"]

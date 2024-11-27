@@ -14,8 +14,6 @@ def calculate_fulltime_metrics(df):
     :return: Güncellenmiş df.
     """
 
-    logging.info("Fulltime metrikleri hesaplanmaya başlıyor...")
-
     # Fulltime Cumulative Goals - Home
     df["Fulltime Cumulative Goals - Home"] = df.apply(
         lambda row: df[
