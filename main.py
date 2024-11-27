@@ -7,10 +7,6 @@ from modules.processing.data_processor import process_all_data
 from modules.io.folder_manager import initialize_data_folder
 from modules.analysis.run_analysis import run_all_analyses
 from modules.processing.data_splitter import split_processed_data
-from modules.processing.columns_selector import select_columns
-from modules.processing.ml_preparation import prepare_ml_data
-from modules.ml_algorithms.logistic_regression_trainer import train_logistic_regression
-from modules.processing.ml_predictions import make_predictions
 
 def main():
     """
@@ -67,40 +63,6 @@ def main():
         print("Analizler tamamlandı.")
     else:
         print("Analizler atlandı.")
-
-    # 11. Kullanıcıdan sütun seçimlerini al
-    print("\nML için sütun seçim aşamasına geçiliyor...")
-    labels, features, selected_labels, selected_features = select_columns(ml_df)
-    print(f"Labels ve features sütunları ayrıldı.")
-    print(f"Labels sütunları: {selected_labels}")
-    print(f"Features sütunları: {selected_features}")
-
-    # 12. Seçilen sütunları ML veri hazırlık fonksiyonuna gönder
-    print("\nML veri hazırlık aşamasına geçiliyor...")
-    X_train_scaled, X_test_scaled, y_train_resampled, y_test = prepare_ml_data(
-        ml_df, selected_features, selected_labels
-    )
-    print("ML veri hazırlık işlemi tamamlandı.")
-
-    # 13. Logistic Regression ile model eğitimi ve değerlendirme
-    print("\nLogistic Regression model eğitimi başlatılıyor...")
-    model, predictions = train_logistic_regression(X_train_scaled, X_test_scaled, y_train_resampled, y_test)
-    print("Logistic Regression modeli eğitimi ve değerlendirmesi tamamlandı.")
-
-    # 14. Prediction işlemi
-    print("\nPrediction işlemi başlatılıyor...")
-    predicted_df = make_predictions(model, prediction_df, selected_features)
-    if predicted_df is not None:
-        print("Tahminler başarıyla tamamlandı. Sonuçlar aşağıda listeleniyor:\n")
-        
-        # Terminalde anlamlı bir şekilde tahmin sonuçlarını göster
-        for _, row in predicted_df.iterrows():
-            home_team = row.get("Home Team Name", "Unknown")
-            away_team = row.get("Away Team Name", "Unknown")
-            prediction = row.get("Prediction", "Unknown")
-            print(f"{home_team} vs {away_team} - Tahmin: {prediction}")
-    else:
-        print("Prediction işlemi sırasında bir hata oluştu.")
 
 if __name__ == "__main__":
     main()
