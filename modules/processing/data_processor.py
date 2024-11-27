@@ -11,8 +11,8 @@ from modules.processing.ml_secondhalf_metrics import calculate_secondhalf_metric
 from modules.processing.ml_fulltime_metrics import calculate_fulltime_metrics
 from modules.processing.ml_result_win_rates import calculate_result_win_rates
 from modules.processing.binary_win import calculate_binary_win
+from modules.processing.point_calculator import calculate_points
 from datetime import datetime, timedelta
-
 
 def process_all_data(df, season_year):
     """
@@ -77,6 +77,7 @@ def process_all_data(df, season_year):
     df = calculate_goal_range(df)
     df = calculate_both_team_score(df)
     df = calculate_clean_sheets_and_fail_to_score(df)
+    df = calculate_points(df)
     print("Tamamlanmış maçlar için hesaplamalar tamamlandı.")
 
     # 6. Tüm maçlar için ML metriklerini hesaplama
