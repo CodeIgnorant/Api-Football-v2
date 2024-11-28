@@ -50,7 +50,7 @@ print(f"SMOTE sonrası sınıf dağılımı: {Counter(y_train_resampled)}\n-----
 # Optuna ile hiperparametre optimizasyonu
 def objective(trial):
     param = {
-        'n_estimators': trial.suggest_int('n_estimators', 50, 500),
+        'n_estimators': trial.suggest_int('n_estimators', 50, 200),
         'max_depth': trial.suggest_categorical('max_depth', [3, 5, 7, 10, None]),
         'learning_rate': trial.suggest_float('learning_rate', 0.01, 0.1, step=0.01),
         'num_leaves': trial.suggest_int('num_leaves', 31, 63, 127),
